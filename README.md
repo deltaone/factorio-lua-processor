@@ -17,7 +17,7 @@ Production control signal out from cpu module to "crafting_combinator" module. P
 Mods required:</br>
 crafting_combinator_0.9.2</br>
 Warehousing v15_0.0.13</br>
-
+</br>
 ![Alt text](/README-1.png?raw=true "")
  
 # Thanks
