@@ -1,13 +1,13 @@
 # lua-processor
-A Factorio mod that lets you run LUA programs ingame. This is can be platform for developing custom signal processors, object controllers and etc.  
+A Factorio mod that lets you run LUA programs ingame.  
+This is can be platform for developing custom signal processors, object controllers and etc.  
 Custom programs defined in 'programs' folder, to add new - place your program file in that folder and run 'programs\install.bat'. 
 Program 'none.lua' can be used as template for new programs. As example you can use 'storage-controller.lua'.
 
 # Custom 'storage-controller' program in action:
 Produces specified products in the required quantity using thresholds ...  
 Program required two additional modules: ram for production list/priority, io module for reading storage state - both must be placed around cpu module. 
-Production control signal out from cpu module to "crafting_combinator" module.  
-Program defined in file "programs\storage-controller.lua"
+Production control signal out from cpu module to "crafting_combinator" module. Program defined in file "programs\storage-controller.lua"
 </br>  
 <details> 
   <summary>BP for 0.15.x :</summary>
