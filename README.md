@@ -2,10 +2,9 @@
 A Factorio mod that lets you run LUA programs ingame. This is can be platform for developing custom signal processors, object controllers and etc. 
 
 # Custom 'storage-controller' program in action:
-Produces specified products in the required quantity using thresholds ...
+Produces specified products in the required quantity using thresholds ...  
 Program required two additional modules: ram for production list/priority, io module for reading storage state - both must be placed around cpu module. 
-Production control signal out from cpu module.  
-
+Production control signal out from cpu module to "crafting_combinator" module.  
 </br>  
 <details> 
   <summary>BP for 0.15.x :</summary>
