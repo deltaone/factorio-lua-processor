@@ -41,38 +41,34 @@ function bios:ins(include_red, include_green) -- in snapshot r+g
 	local network = {}
 	if include_red == nil or include_red then
 		local red = self.control.get_circuit_network(defines.wire_type.red)
-		if red and red.signals then
-			for _,v in pairs(red.signals) do
-				if v.signal.name then
-					network[v.signal.name] = v.count
-				end
+		if red ~= nil and red.signals ~= nil then
+			for k, v in pairs(red.signals) do
+				network[v.signal.name] = v
 			end
 		end
 	end	
 	if include_green == nil or include_green then
 		local green = self.control.get_circuit_network(defines.wire_type.green)
-		if green and green.signals then
-			for _,v in pairs(green.signals) do
-				if v.signal.name then				
-					network[v.signal.name] = (network[v.signal.name] or 0) + v.count --network[v.signal.name] = v
-				end
+		if green ~= nil and green.signals ~= nil then
+			for k, v in pairs(green.signals) do
+				network[v.signal.name] = v
 			end
 		end
 	end	
 	return network
 end
 
-function bios:gets() -- get out snapshot	
+function bios:gets() -- get out snapshot
 	local result = {}
 	for k, v in pairs(self.control.parameters.parameters) do
 		if v.signal.name then
-			result[v.signal.name] = v.count
+			result[v.signal.name] = v
 		end
 	end
 	return result
 end
 
-function bios:get(signal)
+function bios:getval(signal)
 	for _, v in pairs(self.control.parameters.parameters) do
 		if v.signal == nil or v.signal.name == nil then
 			return 0
@@ -85,23 +81,23 @@ end
 function bios:outs(signals) -- set out snapshot
 	local parameters =  {}
 	local index = 1
-	for n, v in pairs(signals) do
-		table.insert(parameters, {index = index, signal = {name = n, type = string.starts(n, "signal-") and "virtual" or "item"}, count = v or 1})
+	for n, s in pairs(signals) do
+		table.insert(parameters, {index = index, signal = {name = s.signal.name, type = s.signal.type}, count = s.count or 1})
 		index = index + 1
 	end	
 	self.control.parameters = { parameters = parameters }
 	self.control.enabled = true
 end
 
-function bios:out(signal, value)	
+function bios:out(signal)
 	local parameters = self.control.parameters
-	for _, v in pairs(parameters.parameters) do		
+	for _, v in pairs(parameters.parameters) do
 		if v.signal == nil or v.signal.name == nil then
-			v.signal = {name = signal, type = string.starts(signal, "signal-") and "virtual" or "item"}
-			v.count = value or 1	
+			v.signal = signal.signal
+			v.count = signal.count
 			break
-		elseif v.signal.name == signal then
-			v.count = value or 1
+		elseif v.signal.name == signal.signal.name then
+			v.count = signal.count or 1
 			break
 		end
 	end

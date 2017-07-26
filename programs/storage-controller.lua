@@ -42,14 +42,14 @@ root[name] = {
 		local ins = module_io.io:ins() -- in snapshot
 		local ram = module_ram.io:gets() -- ram snapshot
 		for _, value in pairs(ram) do
-			local _in_ = ins[_] or 0
-			if not data.states[_] and _in_ <= value * (data.threshold / 100) then
+			local _in_ = ins[_].count or 0
+			if not data.states[_] and _in_ <= value.count * (data.threshold / 100) then
 				data.states[_] = true
-			elseif data.states[_] and _in_ >= value then
+			elseif data.states[_] and _in_ >= value.count then
 				data.states[_] = false
 			end
 			if data.states[_] then	
-				outs[_] = 1
+				outs[_] = {signal = {name = _, type = "item"}, count = 1}
 				if data.single_signal then break end
 			end
 		end
