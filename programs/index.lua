@@ -1,5 +1,9 @@
 require("programs.none")
+require("programs.enemy-detector")
+require("programs.fluid-controller")
+require("programs.ghost-alert-sensor")
 require("programs.lua-executor")
+require("programs.max-item-controller")
 require("programs.storage-controller")
 
 -- http://stackoverflow.com/questions/14942472/create-suite-of-interdependent-lua-files-without-affecting-the-global-namespace

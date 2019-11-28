@@ -31,6 +31,12 @@ function is_valid(entity)
 	return (entity ~= nil and entity.valid)
 end
 
+function is_valid_(chunk)
+  local f = load('return '..chunk)
+  local ok, ret = pcall(f)
+  return ok and ret or nil -- “a ? b : c”
+end
+
 -- https://wiki.factorio.com/World_generator#Maximum_Map_Size_and_used_Memory
 -- The map limit is 2,000,000 x 2,000,000 tiles
 -- https://stackoverflow.com/questions/7539810/saving-a-vector-as-a-single-number
@@ -85,6 +91,22 @@ function position_move(position, direction, distance)
 	elseif direction == defines.direction.west  then x = x - distance
 	end	
 	return {x=x, y=y}
+end
+
+--[[
+>> This are the 8-way directions:
+>> 3 4 5
+>> \ | /
+>> 2 -- -- 6
+>> / | \
+>> 1 0 7
+]]--
+
+function direction_rotate(direction, degrees)
+	local round = degrees > 0 and math.floor or math.ceil
+	steps = round((degrees % 360) / 45)
+
+	return ((direction + steps or 0) % 8)
 end
 
 -------------------------------------------------------------------------------

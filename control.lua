@@ -15,6 +15,14 @@ local object_tag_source = {}; for i = 1, 100 do object_tag_source[i] = i end -- 
 local function initialize(reset)
 	if reset then
 		global = {}
+		for _, force in pairs(game.forces) do
+			if force.technologies["circuit-network"].researched then
+				force.recipes["lua-processor-cpu"].enabled = true
+				force.recipes["lua-processor-io"].enabled = true
+				force.recipes["lua-processor-ram"].enabled = true
+				shout(string.format("lua-processor: enabled for force %s", force.name))
+			end
+		end
 	end
 	global.objects  = global.objects  or {}
 	global.opened  = global.opened  or {}
@@ -34,12 +42,11 @@ local controller = {}
 
 controller["lua-processor-cpu"] = {
 	-------------------------------------------------------------------------------------------------------------------
-	on_built = function(entity, player)
+	on_built = function(entity)
 		if global.objects == nil then global.objects = {} end
 		local object = {
 			tag = 1,
 			entity = entity,
-			player = player,
 			program_id = nil, -- nil  "storage-controller"  "lua-executor"
 			program_data = {},
 			io = bios:new(entity.get_or_create_control_behavior()),
@@ -88,6 +95,13 @@ controller["lua-processor-cpu"] = {
 		gui_or_new(program_panel, "program-label", {type = "label", name = "program-label", caption = {"msg-program-id", ""} })
 		gui_or_new(program_panel, "program-selector", {type = "drop-down", name = "program-selector", items = programs_id, selected_index = selected_index })
 		gui_or_new(program_panel, "program-load", {type = "button", name = "program-load", caption = {"msg-button-load"}, style = "button_style_1"}) 
+
+		description_panel = gui_or_new(panel, "description-panel", {type="flow", name="description-panel", direction="horizontal"})
+		local element = gui_or_new(description_panel, "program-description", {type = "label", name = "program-description", caption = {"", ""}, single_line = false })
+		if object.program_id and programs[object.program_id] and programs[object.program_id].description ~= nil then
+			-- programs[object.program_id].on_gui_create(object, player, panel)
+			element.parent["program-description"].caption = programs[object.program_id].description
+		end
 				
 		if object.program_id and programs[object.program_id] and programs[object.program_id].on_gui_create ~= nil then			
 			programs[object.program_id].on_gui_create(object, player, panel)
@@ -143,12 +157,11 @@ controller["lua-processor-cpu"] = {
 
 local controller_shared = {
 	-------------------------------------------------------------------------------------------------------------------
-	on_built = function(entity, player)
+	on_built = function(entity)
 		if global.objects == nil then global.objects = {} end
 		local object = {
 			tag = 1,
 			entity = entity,
-			player = player,
 			io = bios:new(entity.get_or_create_control_behavior()),
 		}
 		global.objects[get_eid(entity)] = object
@@ -195,7 +208,7 @@ controller["lua-processor-ram"] = controller_shared
 local function on_built(event)
 	local entity = event.created_entity
 	if controller[entity.name] ~= nil and controller[entity.name].on_built then
-		controller[entity.name].on_built(entity, game.players[event.player_index])
+		controller[entity.name].on_built(entity)
 	end
 end
 
@@ -214,11 +227,29 @@ local function on_tick(event)
 		for _, player in pairs(game.players) do
 			entity = player.opened
 			opened = global.opened[player.index]
-			if is_valid(entity) and controller[entity.name] and controller[entity.name].on_gui_create ~= nil then
-				if not player.gui.left[entity.name] then
+			
+			isOpen = is_valid(entity) and is_valid_("entity.name") ~= nil and controller[entity.name]
+			
+			if (not isOpen and opened) or (isOpen and opened and entity ~= opened.entity) then --close = true
+				if is_valid(opened.entity) and controller[opened.name].on_gui_destroy ~= nil then 
+					controller[opened.name].on_gui_destroy(opened.entity)
+				end
+				if player.gui.left[opened.name] ~= nil then 
+					player.gui.left[opened.name].destroy()				
+				end
+				global.opened[player.index] = nil								
+			elseif isOpen and not opened then --open = true
+				if not player.gui.left[entity.name] and controller[entity.name].on_gui_create ~= nil then
 					global.opened[player.index] = { entity = entity, name = entity.name }
 					controller[entity.name].on_gui_create(entity, player)					
-				end
+				end									
+			end		
+--[[		
+			if is_valid(entity) and is_valid_("entity.name") ~= nil and controller[entity.name] and controller[entity.name].on_gui_create ~= nil then 
+				if not player.gui.left[entity.name] and opened == nil then
+					global.opened[player.index] = { entity = entity, name = entity.name }
+					controller[entity.name].on_gui_create(entity, player)					
+				end			
 			elseif opened and player.gui.left[opened.name] ~= nil then
 				if is_valid(opened.entity) and controller[opened.name].on_gui_destroy ~= nil then 
 					controller[opened.name].on_gui_destroy(opened.entity)
@@ -226,8 +257,10 @@ local function on_tick(event)
 				player.gui.left[opened.name].destroy()
 				global.opened[player.index] = nil
 			end
+]]--		
 		end		
 	end 
+
 	-- handle entity update
 	if event.tick % config.refresh_rate == 0 then -- 23
 		for index, object in pairs(global.objects) do
@@ -279,7 +312,7 @@ script.on_event(defines.events.on_tick, on_tick)
 script.on_event(defines.events.on_gui_click, on_gui_click)
 script.on_event(defines.events.on_built_entity, on_built)
 script.on_event(defines.events.on_robot_built_entity, on_built)
-script.on_event(defines.events.on_preplayer_mined_item, on_destroy)
+script.on_event(defines.events.on_pre_player_mined_item, on_destroy)
 script.on_event(defines.events.on_robot_pre_mined, on_destroy)
 script.on_event(defines.events.on_entity_died, on_destroy)
 script.on_event(defines.events.on_entity_settings_pasted, on_settings_pasted)
