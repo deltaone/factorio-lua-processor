@@ -1,3 +1,5 @@
+<p align="center"> <img src="https://komarev.com/ghpvc/?username=deltaone-factorio-lua-processor&label=Repository%20views&color=ce9927&style=flat" /> </p>
+
 # lua-processor
 A Factorio mod that lets you run LUA programs ingame.  
 This is can be platform for developing custom signal processors, object controllers and etc.  
